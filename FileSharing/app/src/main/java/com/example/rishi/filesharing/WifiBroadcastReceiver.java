@@ -23,11 +23,15 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
             Toast.makeText(context, "Intent for " + action + " detected", Toast.LENGTH_LONG).show();
-            int state = intent.getIntExtra(WifiP2pManager.WIFI_P2P_STATE_ENABLED);
+            int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
+
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
+                activity.setIsWifiP2pEnabled(true);
             }
             else
-            {}
+            {
+                activity.setIsWifiP2pEnabled(false);
+            }
         }
         else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action))
         {
@@ -39,6 +43,8 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
         }
         else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action))
         {
+            Toast.makeText(context, "Time to update device list fragment", Toast.LENGTH_LONG).show();
+
 
         }
     }
