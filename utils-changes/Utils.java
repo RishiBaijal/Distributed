@@ -11,8 +11,9 @@ import java.util.Enumeration;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.Writer;
-
 
 import android.util.Log;
 
@@ -58,8 +59,8 @@ public class Utils {
 	}
 	
 	/*
-    Given URL and range of file, returns a byte array containing that chunk
-    */
+     * Given URL and range of file, returns a byte array containing that chunk
+     */
 	public static byte[] downloadRange(URL url, int start, int end){
         byte []b = new byte[end-start+1];
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -75,7 +76,7 @@ public class Utils {
 	
 
 	/*
-	 *  Saves file as <prefix><index>
+	 *  Saves b into file named as <prefix><index>
 	 */
 	public static void savetoDisc(byte b[], int index, String prefix){
 		FileOutputStream f = new FileOutputStream(new File("/sdcard/"+prefix+toString(index)));
@@ -85,6 +86,24 @@ public class Utils {
 		f.flush();
 		f.close();
 	}
+	
+	/*
+	 * Stitches n files named as <prefix><i>, from <prefix>0 to prefix<n-1> into file "name"
+	 */
+	public static void stitchFiles(String prefix, String name, int n){
+		FileOutputStream f = new FileOutputStream(new File("/sdcard/"+name));
+		for(int i=0;i<n;i++){
+			File ff = new File("/sdcard/"+prefix+toString(i));
+			FileInputStream fis = new FileInputStream(ff);
+			byte temp[1024];
+			int r=fis.read(temp);
+			f.write(b,0,r);	//write r bytes from the start of array b into f
+			fis.close();
+		}
+		f.flush();
+		f.close();
+	}
+	
 	public static String getLocalIPAddress() {
 		/*
 		 * modified from:
