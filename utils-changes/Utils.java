@@ -14,13 +14,15 @@ import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.Writer;
+import java.lang.System;
 
 import android.util.Log;
 
 public class Utils {
 
 	private final static String p2pInt = "p2p-p2p0";
-
+	public static int HistWeight=0.8; //This variable is used to determine the weightage of timeout
+	
 	public static String getIPFromMac(String MAC) {
 		/*
 		 * method modified from:
@@ -59,26 +61,34 @@ public class Utils {
 	}
 	
 	/*
-     * Given URL and range of file, returns a byte array containing that chunk
+     * Given URL and range of file, returns a byte array containing that chunk, start and end inclusive
+     * url : The url of the file to be downloaded
+     * start : starting byte position
+     * end : ending byte position
+     * speed : meant for returning download speed in KB/s. Speed should be a single element array and this value resides in speed[0]
      */
-	public static byte[] downloadRange(URL url, int start, int end){
+	public static byte[] downloadRange(URL url, int start, int end, int[] speed){
         byte []b = new byte[end-start+1];
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestProperty("Range", "bytes=" + start + "-");
         connection.setDoInput(true);
         connection.setDoOutput(true);
         in = new BufferedInputStream(connection.getInputStream());
+        long s=currentTimeMillis();
         for(int i=start;i<=end;i++){
             b[i-start]=in.read();
         }
+        s=s-currentTimeMillis();
+        speed[0]=(end-start+1)/1.024/s;
         return b;
     }
 	
 
 	/*
 	 *  Saves b into file named as <prefix><index>
+	 *  b : byte array to be written into file
 	 */
-	public static void savetoDisc(byte b[], int index, String prefix){
+	public static void savetoDisc(byte[] b, int index, String prefix){
 		FileOutputStream f = new FileOutputStream(new File("/sdcard/"+prefix+toString(index)));
 		int n=b.length;
 		for(int i=0;i<n;i++)
@@ -88,14 +98,19 @@ public class Utils {
 	}
 	
 	/*
-	 * Stitches n files named as <prefix><i>, from <prefix>0 to prefix<n-1> into file "name"
+	 * Stitches n files named as <prefix><i>, from <prefix>0 to prefix<n-1> into file "name". It is assumed that all these files
+	 * follow a naming pattern, <prefix>0,<prefix>1...
+	 * prefix : The prefix that files are
+	 * name : The name of the file to be written into
+	 * n : The number of such indexed files that need to be stiched
+	 * size : The maximum size of any one indexed file
 	 */
-	public static void stitchFiles(String prefix, String name, int n){
+	public static void stitchFiles(String prefix, String name, int n, int size){
 		FileOutputStream f = new FileOutputStream(new File("/sdcard/"+name));
 		for(int i=0;i<n;i++){
 			File ff = new File("/sdcard/"+prefix+toString(i));
 			FileInputStream fis = new FileInputStream(ff);
-			byte temp[1024];
+			byte temp[size];	//
 			int r=fis.read(temp);
 			f.write(b,0,r);	//write r bytes from the start of array b into f
 			fis.close();
