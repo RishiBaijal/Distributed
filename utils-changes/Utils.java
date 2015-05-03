@@ -8,6 +8,11 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.Writer;
+
 
 import android.util.Log;
 
@@ -67,8 +72,19 @@ public class Utils {
         }
         return b;
     }
+	
 
-
+	/*
+	 *  Saves file as <prefix><index>
+	 */
+	public static void savetoDisc(byte b[], int index, String prefix){
+		FileOutputStream f = new FileOutputStream(new File("/sdcard/"+prefix+toString(index)));
+		int n=b.length;
+		for(int i=0;i<n;i++)
+			f.write(b[i]);
+		f.flush();
+		f.close();
+	}
 	public static String getLocalIPAddress() {
 		/*
 		 * modified from:
