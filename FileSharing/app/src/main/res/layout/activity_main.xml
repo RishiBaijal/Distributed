@@ -13,7 +13,7 @@
             class="com.example.rishi.filesharing.DeviceListFragment"
             android:id="@+id/frag_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="422dp">
             <!-- Preview: layout=@layout/row_devices -->
         </fragment>
         <fragment

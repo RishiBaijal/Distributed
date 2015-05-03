@@ -186,9 +186,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
     }
 
-    /**
-     * Clears the UI fields after a disconnect or direct mode disable operation.
-     */
     public void resetViews() {
         mContentView.findViewById(R.id.btn_connect).setVisibility(View.VISIBLE);
         TextView view = (TextView) mContentView.findViewById(R.id.device_address);
@@ -265,10 +262,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPreExecute()
-         */
+
         @Override
         protected void onPreExecute() {
             statusText.setText("Opening a server socket");
