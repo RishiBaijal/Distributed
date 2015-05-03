@@ -134,6 +134,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         TextView view = (TextView) mContentView.findViewById(R.id.my_name);
         view.setText(device.deviceName);
         view = (TextView) mContentView.findViewById(R.id.my_status);
+        System.out.println("The device status is "+device.status);
         view.setText(getDeviceStatus(device.status));
     }
 
@@ -143,6 +144,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
             progressDialog.dismiss();
         }
         peers.clear();
+        System.out.println("NEW PEERS AVAILABLE MOTHERFUCKERS!!!");
         peers.addAll(peerList.getDeviceList());
         ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
         if (peers.size() == 0) {
@@ -164,7 +166,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        progressDialog = ProgressDialog.show(getActivity(), "Press back to cancel", "finding peers", true,
+        progressDialog = ProgressDialog.show(getActivity(), "Press back to cancel", "Looking for peers", true,
                 true, new DialogInterface.OnCancelListener() {
 
                     @Override

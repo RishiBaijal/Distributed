@@ -55,8 +55,9 @@ public class MainActivity extends ActionBarActivity implements WifiP2pManager.Ch
     public void onPause() {
         super.onPause();
         //broadcastReceiver  = new WifiBroadcastReceiver(mManager, mChannel, this);
-        registerReceiver(broadcastReceiver, intentFilter);
+        unregisterReceiver(broadcastReceiver);
     }
+
 
 
     @Override
