@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/Users/rishi/Documents/Master_folder/IIITD/6th_semester/DSys/Project/Distributed/NsdChat/app/src/main/res/values/strings.xml -->
+    <eat-comment/>
+    <string name="app_name">NsdChat</string>
+    <string name="connect">Connect</string>
+    <string name="discover">Discover</string>
+    <string name="register">Register</string>
+    <string name="send">Send</string>
+</resources>
