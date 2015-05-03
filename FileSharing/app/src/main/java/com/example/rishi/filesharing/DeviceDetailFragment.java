@@ -46,7 +46,7 @@ import android.util.Log;
 public class DeviceDetailFragment extends Fragment implements ConnectionInfoListener {
 
     public static final String IP_SERVER = "192.168.49.1";
-    public static int PORT = 8988;
+    public static int PORT = 8080;
     private static boolean server_running = false;
 
     protected static final int CHOOSE_FILE_RESULT_CODE = 20;
