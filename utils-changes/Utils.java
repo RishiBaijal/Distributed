@@ -7,6 +7,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -15,11 +16,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.Writer;
 import java.lang.System;
-
+import java.net.HttpURLConnection;
 import android.util.Log;
 
 public class Utils {
-
+	public class Peer{
+		public String IP;
+		public int assignedChunk;
+		public int timeout;
+	}
 	private final static String p2pInt = "p2p-p2p0";
 	public static int HistWeight=0.8; //This variable is used to determine the weightage of timeout
 	
@@ -58,6 +63,36 @@ public class Utils {
 			}
 		}
 		return null;
+	}
+	
+	public static int getFileSize(URL url){
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.connect();
+		return connection.getContentLength();
+	}
+	
+	/*
+	 * Given an ArrayList of peers, assigns to every free peer an unreceived chunk
+	 * n : no. of chunks
+	 * received[i] is true iff ith chunk has been received/assigned
+	 * peers : The list of peers in our group
+	 */
+	public static ArrayList<Peer> assignChunks(int n, bool[] received, ArrayList<Peer> peers){
+		int l=peers.size();
+		ArrayList<Peer> changes = new ArrayList()
+		for(int i=0;i<l;i++)
+			if (peers[i].timeout<currentTimeMillis())
+				received[peers[i].assignedChunk]=false;
+		int j=0,i=0;
+		for(j;received[j]&&j<n;j++);
+		while(i<l&&j<n){
+			if (peers[i].assignedChunk=-1){
+				peers[i++].assignedChunk=j++;
+				changes.add(peers.get(i));
+			}
+			for(j;received[j]&&j<n;j++);
+		}
+		return changes;
 	}
 	
 	/*
