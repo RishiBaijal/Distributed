@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/background_dark"
+
+    >
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        >
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/btn_connect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/connect_peer_button" />
+            <Button
+                android:id="@+id/btn_disconnect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/disconnect_peer_button" />
+            <Button
+                android:id="@+id/btn_start_client"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/get_file_button"
+                android:visibility="gone" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/device_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/device_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/group_owner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/group_ip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:id="@+id/status_bar"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_gravity="bottom"
+        android:layout_height="100sp"
+        android:background="@android:color/background_light">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:background="@android:color/background_dark"
+            android:textColor="@android:color/holo_green_light"
+            android:id="@+id/status_text"
+            android:height="50sp"
+            android:layout_marginBottom="5sp">
+        </TextView>
+
+
+        <TextView
+            android:layout_below="@id/status_text"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:scrollHorizontally="true"
+            android:textColor="@android:color/black"
+            android:id="@+id/connected_peers"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:textSize="20sp"
+            android:text="Connected peers: "
+            android:singleLine="true"
+            android:marqueeRepeatLimit ="marquee_forever"
+            android:focusableInTouchMode="true"
+            />
+
+    </RelativeLayout>
+</FrameLayout>
+<!-- From: file:/home/mridul/Android/StudioProjects/Distributed/wifi-direct-demo/app/src/main/res/layout/device_detail.xml -->
