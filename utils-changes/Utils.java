@@ -121,7 +121,7 @@ public class Utils {
 			byte temp[size];	//
 			int r=ff.read(temp);
 			f.write(temp,0,r);	//write r bytes from the start of array temp into f
-			fis.close();
+			ff.close();
 		}
 		f.flush();
 		f.close();
