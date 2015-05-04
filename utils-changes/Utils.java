@@ -89,13 +89,13 @@ public class Utils {
 			if (peers[i].timeout<currentTimeMillis())
 				assigned[peers[i].assignedChunk]=false;
 		int j=0,i=0;
-		for(j;!received[j]&&assigned[j]&&j<n;j++);
+		for(j;(received[j]||assigned[j])&&j<n;j++);
 		while(i<l&&j<n){
 			if (peers[i].assignedChunk=-1){
 				peers[i++].assignedChunk=j++;
 				changes.add(peers.get(i));
 			}
-			for(j;!received[j]&&assigned[j]&&j<n;j++);
+			for(j;(received[j]||assigned[j])&&j<n;j++);
 		}
 		return changes;
 	}
