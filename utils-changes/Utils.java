@@ -61,6 +61,15 @@ public class Utils {
 	}
 	
 	/*
+	 * If the current expected download speed is x, and a the newest file was downloaded at speed y, then new expected 
+	 * download speed = HistWeight*x+(1-HistWeight)*y
+	 * Useful for setting timeout periods
+	 */
+	public static int getExpectedSpeed(int current, int latest){
+		return current*HistWeight+latest*(1-HistWeight);
+	}
+	
+	/*
      * Given URL and range of file, returns a byte array containing that chunk, start and end inclusive
      * url : The url of the file to be downloaded
      * start : starting byte position
@@ -108,11 +117,10 @@ public class Utils {
 	public static void stitchFiles(String prefix, String name, int n, int size){
 		FileOutputStream f = new FileOutputStream(new File("/sdcard/"+name));
 		for(int i=0;i<n;i++){
-			File ff = new File("/sdcard/"+prefix+toString(i));
-			FileInputStream fis = new FileInputStream(ff);
+			FileInputStream ff = new FileInputStream(new File("/sdcard/"+prefix+toString(i)));
 			byte temp[size];	//
-			int r=fis.read(temp);
-			f.write(b,0,r);	//write r bytes from the start of array b into f
+			int r=ff.read(temp);
+			f.write(temp,0,r);	//write r bytes from the start of array temp into f
 			fis.close();
 		}
 		f.flush();
