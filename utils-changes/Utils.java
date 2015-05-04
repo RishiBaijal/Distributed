@@ -65,6 +65,10 @@ public class Utils {
 		return null;
 	}
 	
+	
+	/*
+	 * Returns size of file in bytes at url 
+	 */
 	public static int getFileSize(URL url){
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.connect();
@@ -74,23 +78,24 @@ public class Utils {
 	/*
 	 * Given an ArrayList of peers, assigns to every free peer an unreceived chunk
 	 * n : no. of chunks
-	 * received[i] is true iff ith chunk has been received/assigned
+	 * assigned[i] is true iff ith chunk has been assigned
+	 * received[i] is true iff ith chunk has been received
 	 * peers : The list of peers in our group
 	 */
-	public static ArrayList<Peer> assignChunks(int n, bool[] received, ArrayList<Peer> peers){
+	public static ArrayList<Peer> assignChunks(int n, bool[] assigned, bool[] received, ArrayList<Peer> peers){
 		int l=peers.size();
 		ArrayList<Peer> changes = new ArrayList()
 		for(int i=0;i<l;i++)
 			if (peers[i].timeout<currentTimeMillis())
-				received[peers[i].assignedChunk]=false;
+				assigned[peers[i].assignedChunk]=false;
 		int j=0,i=0;
-		for(j;received[j]&&j<n;j++);
+		for(j;!received[j]&&assigned[j]&&j<n;j++);
 		while(i<l&&j<n){
 			if (peers[i].assignedChunk=-1){
 				peers[i++].assignedChunk=j++;
 				changes.add(peers.get(i));
 			}
-			for(j;received[j]&&j<n;j++);
+			for(j;!received[j]&&assigned[j]&&j<n;j++);
 		}
 		return changes;
 	}
