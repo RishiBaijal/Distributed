@@ -82,7 +82,7 @@ public class Utils {
         connection.setRequestProperty("Range", "bytes=" + start + "-");
         connection.setDoInput(true);
         connection.setDoOutput(true);
-        in = new BufferedInputStream(connection.getInputStream());
+        BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
         long s=currentTimeMillis();
         for(int i=start;i<=end;i++){
             b[i-start]=in.read();
