@@ -81,6 +81,7 @@ public class Utils {
 	 * assigned[i] is true iff ith chunk has been assigned
 	 * received[i] is true iff ith chunk has been received
 	 * peers : The list of peers in our group
+	 * returns the list of peers that have been newly assigned chunks
 	 */
 	public static ArrayList<Peer> assignChunks(int n, bool[] assigned, bool[] received, ArrayList<Peer> peers){
 		int l=peers.size();
@@ -89,9 +90,10 @@ public class Utils {
 			if (peers[i].timeout<currentTimeMillis())
 				assigned[peers[i].assignedChunk]=false;
 		int j=0,i=0;
-		for(j;(received[j]||assigned[j])&&j<n;j++);
+		for(j;(received[j]||assigned[j])&&j<n;j++);!received[j]&&assigned[j]
 		while(i<l&&j<n){
 			if (peers[i].assignedChunk=-1){
+				assigned[j]=true;
 				peers[i++].assignedChunk=j++;
 				changes.add(peers.get(i));
 			}
