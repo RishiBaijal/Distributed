@@ -10,14 +10,11 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.Writer;
-import java.lang.System;
 
 import android.os.Environment;
 import android.util.Log;
@@ -25,13 +22,17 @@ import android.util.Log;
 import static java.lang.System.currentTimeMillis;
 
 public class Utils {
-
+	public class Peer{
+		public String IP;
+		public int assignedChunk;
+		public int timeout;
+	}
 	private final static String p2pInt = "p2p-p2p0";
 	public static double HistWeight=0.8; //This variable is used to determine the weightage of timeout
 
 	public static boolean createInitDir() {
 		try {
-			File myDirectory = new File(Environment.getExternalStorageDirectory(), "WiFiP2p_chunks");
+			File myDirectory = new File("/storage/emulated/0/WiFiP2p_chunks");
 			if (!myDirectory.exists()) {
 				myDirectory.mkdirs();
 			}
@@ -78,7 +79,46 @@ public class Utils {
 		}
 		return null;
 	}
-	
+
+	public static int getFileSize(URL url) throws  IOException{
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.connect();
+		return connection.getContentLength();
+	}
+
+	/*
+	 * Given an ArrayList of peers, assigns to every free peer an unreceived chunk
+	 * n : no. of chunks
+	 * received[i] is true iff ith chunk has been received/assigned
+	 * peers : The list of peers in our group
+	 */
+	/*public static ArrayList<Peer> assignChunks(int n, boolean[] received, ArrayList<Peer> peers){
+		int l=peers.size();
+		ArrayList<Peer> changes = new ArrayList();
+		for(int i=0;i<l;i++)
+			if (peers.get(i).timeout<currentTimeMillis())
+				received[peers.get(i).assignedChunk]=false;
+		int j=0,i=0;
+		for(;received[j]&&j<n;j++);
+		while(i<l&&j<n){
+			if (peers[i].assignedChunk=-1){
+				peers[i++].assignedChunk=j++;
+				changes.add(peers.get(i));
+			}
+			for(;received[j]&&j<n;j++);
+		}
+		return changes;
+	}*/
+
+	/*
+	 * If the current expected download speed is x, and a the newest file was downloaded at speed y, then new expected 
+	 * download speed = HistWeight*x+(1-HistWeight)*y
+	 * Useful for setting timeout periods
+	 */
+	public static double getExpectedSpeed(int current, int latest){
+		return current*HistWeight+latest*(1-HistWeight);
+	}
+
 	/*
      * Given URL and range of file, returns a byte array containing that chunk, start and end inclusive
      * url : The url of the file to be downloaded
@@ -86,58 +126,53 @@ public class Utils {
      * end : ending byte position
      * speed : meant for returning download speed in KB/s. Speed should be a single element array and this value resides in speed[0]
      */
-	/*public static byte[] downloadRange(URL url, int start, int end, int[] speed) throws IOException{
-        byte []b = new byte[end-start+1];
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestProperty("Range", "bytes=" + start + "-");
-        connection.setDoInput(true);
-        connection.setDoOutput(true);
-        in = new BufferedInputStream(connection.getInputStream());
-        long s=currentTimeMillis();
-        for(int i=start;i<=end;i++){
-            b[i-start]=in.read();
-        }
-        s=s-currentTimeMillis();
-        speed[0]= (int) ((end-start+1)/1.024/s);
-        return b;
-    }*/
-	
+	public static byte[] downloadRange(URL url, int start, int end, int[] speed) throws IOException{
+		byte []b = new byte[end-start+1];
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestProperty("Range", "bytes=" + start + "-");
+		connection.setDoInput(true);
+		connection.setDoOutput(true);
+		BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
+		long s=currentTimeMillis();
+		for(int i=start;i<=end;i++){
+			b[i-start]= (byte) in.read();
+		}
+		s=s-currentTimeMillis();
+		speed[0]= (int) ((end-start+1)/1.024/s);
+		return b;
+	}
+
 
 	/*
 	 *  Saves b into file named as <prefix><index>
 	 *  b : byte array to be written into file
 	 */
-	public static void savetoDisc(byte[] b, int index, String prefix) throws IOException{
-		FileOutputStream f = new FileOutputStream(new File("/sdcard/"+prefix+Integer.toString(index)));
-		int n=b.length;
-		for(int i=0;i<n;i++)
+	public static String savetoDisc(byte[] b, int index, String prefix) throws IOException {
+		String file_out = "/sdcard/WiFiP2p_chunks/" + prefix + Integer.toString(index);
+		FileOutputStream f = new FileOutputStream(new File(file_out));
+		int n = b.length;
+		for (int i = 0; i < n; i++)
 			f.write(b[i]);
 		f.flush();
 		f.close();
+		return file_out;
 	}
-	
-	/*
-	 * Stitches n files named as <prefix><i>, from <prefix>0 to prefix<n-1> into file "name". It is assumed that all these files
-	 * follow a naming pattern, <prefix>0,<prefix>1...
-	 * prefix : The prefix that files are
-	 * name : The name of the file to be written into
-	 * n : The number of such indexed files that need to be stiched
+	 /* n : The number of such indexed files that need to be stiched
 	 * size : The maximum size of any one indexed file
 	 */
-	/*public static void stitchFiles(String prefix, String name, int n, int size) throws IOException{
+	public static void stitchFiles(String prefix, String name, int n, int size) throws IOException{
 		FileOutputStream f = new FileOutputStream(new File("/sdcard/"+name));
 		for(int i=0;i<n;i++){
-			File ff = new File("/sdcard/"+prefix+Integer.toString(i));
-			FileInputStream fis = new FileInputStream(ff);
-			byte temp[] = new byte[size];
-			int r=fis.read(temp);
-			f.write(b,0,r);	//write r bytes from the start of array b into f
-			fis.close();
+			FileInputStream ff = new FileInputStream(new File("/sdcard/"+prefix+Integer.toString(i)));
+			byte temp[] = new byte[size];	//
+			int r=ff.read(temp);
+			f.write(temp,0,r);	//write r bytes from the start of array temp into f
+			ff.close();
 		}
 		f.flush();
 		f.close();
-	}*/
-	
+	}
+
 	public static String getLocalIPAddress() {
 		/*
 		 * modified from:
@@ -160,9 +195,9 @@ public class Utils {
 				}
 			}
 		} catch (SocketException ex) {
-			Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
+			Log.e("AndroidNetworkFactory", "getLocalIPAddress()", ex);
 		} catch (NullPointerException ex) {
-			Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
+			Log.e("AndroidNetworkFactory", "getLocalIPAddress()", ex);
 		}
 		return null;
 	}

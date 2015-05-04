@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.example.android.wifidirect;
 
@@ -23,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -37,29 +23,29 @@ import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.android.wifidirect.DeviceListFragment.DeviceActionListener;
 
-/**
- * A fragment that manages a particular peer and allows interaction with device
- * i.e. setting up network connection and transferring data.
- */
 public class DeviceDetailFragment extends Fragment implements ConnectionInfoListener {
 
 	public static final String IP_SERVER = "192.168.49.1";
 	public static int PORT = 8988;
 	private static boolean server_running = false;
+	private static boolean connected = false;
+
 
 	protected static final int CHOOSE_FILE_RESULT_CODE = 20;
 	private View mContentView = null;
 	private WifiP2pDevice device;
 	private WifiP2pInfo info;
-	ProgressDialog progressDialog = null;
+	public ProgressDialog progressDialog = null;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -70,10 +56,13 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		mContentView = inflater.inflate(R.layout.device_detail, null);
-		mContentView.findViewById(R.id.btn_connect).setOnClickListener(new View.OnClickListener() {
 
+
+		mContentView.findViewById(R.id.btn_connect).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				connected = true;
+				Utils.createInitDir();
 				WifiP2pConfig config = new WifiP2pConfig();
 				config.deviceAddress = device.deviceAddress;
 				config.wps.setup = WpsInfo.PBC;
@@ -91,7 +80,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 						//                        }
 				);
 				((DeviceActionListener) getActivity()).connect(config);
-				Utils.createInitDir();
 			}
 		});
 
@@ -100,7 +88,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
 					@Override
 					public void onClick(View v) {
-						((DeviceActionListener) getActivity()).disconnect();
+						connected = false;
 					}
 				});
 
@@ -109,24 +97,35 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
 					@Override
 					public void onClick(View v) {
+						try {
+							/*String url_file = editText.getText().toString();
+							int arr[] = new int[1];
+							URL url = new URL(url_file);
+							byte output[] = new byte[Utils.getFileSize(url)];
+							output = Utils.downloadRange(url, 0, Utils.getFileSize(url) - 1, arr);
+*/
+							Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+							intent.setType("file/*");
 
-						// Allow user to pick an image from Gallery or other
-						// registered apps
-						Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-						intent.setType("file/*");
-						startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
+							//String filename = Utils.savetoDisc(output, 0, Long.toString(System.currentTimeMillis()));
+							Uri uri = Uri.fromFile(new File("/storage/emulated/0/WiFiP2p_chunks/file1"));
+							intent.setData(uri);
+							onActivityResult(-1, -1, intent);
+						}
+						catch (Exception e) {
+						}
 					}
 				});
-
 		return mContentView;
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		String localIP = Utils.getLocalIPAddress();
+		String localIP;
+		localIP = Utils.getLocalIPAddress();
 		// Trick to find the ip in the file /proc/net/arp
-		String client_mac_fixed = new String(device.deviceAddress).replace("99", "19");
+		String client_mac_fixed = device.deviceAddress.replace("99", "19");
 		String clientIP = Utils.getIPFromMac(client_mac_fixed);
 
 		// User has picked an image. Transfer it to group owner i.e peer using
@@ -138,7 +137,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		Intent serviceIntent = new Intent(getActivity(), FileTransferService.class);
 		serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
 		serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, uri.toString());
-
 		if(localIP.equals(IP_SERVER)){
 			serviceIntent.putExtra(FileTransferService.EXTRAS_ADDRESS, clientIP);
 		}else{
@@ -160,8 +158,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		// The owner IP is now known.
 		TextView view = (TextView) mContentView.findViewById(R.id.group_owner);
 		view.setText(getResources().getString(R.string.group_owner_text)
-				+ ((info.isGroupOwner == true) ? getResources().getString(R.string.yes)
-						: getResources().getString(R.string.no)));
+				+ ((info.isGroupOwner) ? getResources().getString(R.string.yes)
+				: getResources().getString(R.string.no)));
 
 		// InetAddress from WifiP2pInfo struct.
 		view = (TextView) mContentView.findViewById(R.id.device_info);
@@ -235,10 +233,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 				Log.d(WiFiDirectActivity.TAG, "Server: Socket opened");
 				Socket client = serverSocket.accept();
 				Log.d(WiFiDirectActivity.TAG, "Server: connection done");
-				final File f = new File(Environment.getExternalStorageDirectory() + "/"
-						+ context.getPackageName() + "/wifip2pshared-" + System.currentTimeMillis()
-						+ ".jpg");
-
+				final File f = new File(Environment.getExternalStorageDirectory() + "/WiFiP2p_chunks/" + System.currentTimeMillis());
 				File dirs = new File(f.getParent());
 				if (!dirs.exists())
 					dirs.mkdirs();
@@ -264,10 +259,10 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		protected void onPostExecute(String result) {
 			if (result != null) {
 				statusText.setText("File copied - " + result);
-				Intent intent = new Intent();
+				/*Intent intent = new Intent();
 				intent.setAction(android.content.Intent.ACTION_VIEW);
-				intent.setDataAndType(Uri.parse("file://" + result), "file/*");
-				context.startActivity(intent);
+				intent.setDataAndType(Uri.parse("file://" + result), "file*//*");
+				context.startActivity(intent);*/
 			}
 
 		}

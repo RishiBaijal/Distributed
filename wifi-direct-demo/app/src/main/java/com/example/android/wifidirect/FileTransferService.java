@@ -1,4 +1,4 @@
-// Copyright 2011 Google Inc. All Rights Reserved.
+
 
 package com.example.android.wifidirect;
 
@@ -16,10 +16,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-/**
- * A service that process each file transfer request i.e Intent by opening a
- * socket connection with the WiFi Direct Group Owner and writing the file
- */
 public class FileTransferService extends IntentService {
 
 	private static final int SOCKET_TIMEOUT = 5000;

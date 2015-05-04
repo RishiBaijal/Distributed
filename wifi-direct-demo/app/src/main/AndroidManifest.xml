@@ -33,6 +33,5 @@
 
         <!-- Used for transferring files  after a successful connection -->
         <service android:enabled="true" android:name=".FileTransferService" />
-
     </application>
 </manifest>

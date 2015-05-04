@@ -18,7 +18,7 @@
     <string name="empty"/>
     <string name="empty_message">No devices found. Turn on P2P and perform discovery from the Action Bar</string>
     <string name="enable_p2p_button">P2P On/Off</string>
-    <string name="get_file_button">Launch Gallery</string>
+    <string name="get_file_button">Send file</string>
     <string name="group_owner_text">"Am I the Group Owner? "</string>
     <string name="label_me">MY DETAILS</string>
     <string name="label_peers">PEERS LIST</string>

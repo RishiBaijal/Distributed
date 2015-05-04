@@ -3,8 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/wifi-direct-demo.iml" filepath="$PROJECT_DIR$/wifi-direct-demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/downdist_DSys.iml" filepath="$PROJECT_DIR$/downdist_DSys.iml" />
     </modules>
   </component>
 </project>
-

@@ -19,7 +19,7 @@
             android:orientation="horizontal"
             android:gravity="center_horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="50sp">
             <Button
                 android:id="@+id/btn_connect"
                 android:layout_width="wrap_content"
@@ -36,11 +36,16 @@
                 android:layout_height="wrap_content"
                 android:text="@string/get_file_button"
                 android:visibility="gone" />
+
         </LinearLayout>
+
+
+
         <TextView
             android:id="@+id/device_address"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            />
         <TextView
             android:id="@+id/device_info"
             android:layout_width="match_parent"
@@ -95,4 +100,14 @@
 
     </RelativeLayout>
 </FrameLayout>
-<!-- From: file:/home/mridul/Android/StudioProjects/Distributed/wifi-direct-demo/app/src/main/res/layout/device_detail.xml -->
+
+
+<!--<EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:textSize="20sp"
+            android:layout_margin="5sp"
+            android:id="@+id/edit_text"
+            android:textColor="@android:color/black"
+            android:hint="Enter URL of file here"/>--><!-- From: file:/home/mridul/Android/StudioProjects/Distributed/wifi-direct-demo/app/src/main/res/layout/device_detail.xml -->
