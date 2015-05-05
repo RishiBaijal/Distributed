@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.Writer;
 import java.lang.System;
+import java.lang.String;
 import java.net.HttpURLConnection;
 import android.util.Log;
 
@@ -24,7 +25,17 @@ public class Utils {
 		public String IP;
 		public int assignedChunk;
 		public int timeout;
+		
+
 	}
+	
+	public class Chunk{
+		public String IP;
+		public int start;
+		public int end;
+
+	}
+	
 	private final static String p2pInt = "p2p-p2p0";
 	public static float HistWeight=0.8; //This variable is used to determine the weightage of timeout
 	
@@ -65,10 +76,22 @@ public class Utils {
 		return null;
 	}
 	
+	public static String ChunkToString(Chunk c){
+		return Integer.toString(c.start)+"_"+Integer.toString(c.end)+"_"c.IP;
+	}
+	
+	public static Chunk StringToChunk(String s){
+		String arr[] = s.split("_");
+		Chunk c = new Chunk();
+		c.start=Integer.parseInt(arr[0]);
+		c.end=Integer.parseInt(arr[1]);
+		c.IP = new String(arr[2]);
+	}
 	
 	public static int getFileSize(URL url) throws  IOException{
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.connect();
+		connection.disconnect();
 		return connection.getContentLength();
 	}
 
@@ -78,7 +101,7 @@ public class Utils {
 	 * received[i] is true iff ith chunk has been received/assigned
 	 * peers : The list of peers in our group
 	 */
-	/*public static ArrayList<Peer> assignChunks(int n, boolean[] received, ArrayList<Peer> peers){
+	public static ArrayList<Peer> assignChunks(int n, boolean[] received, ArrayList<Peer> peers){
 		int l=peers.size();
 		ArrayList<Peer> changes = new ArrayList();
 		for(int i=0;i<l;i++)
@@ -94,7 +117,7 @@ public class Utils {
 			for(;received[j]&&j<n;j++);
 		}
 		return changes;
-	}*/
+	}
 
 	/*
 	 * If the current expected download speed is x, and a the newest file was downloaded at speed y, then new expected 
