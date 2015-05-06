@@ -193,7 +193,7 @@ public class MainActivity extends ActionBarActivity implements WifiP2pManager.Ch
             mManager.initialize(this, getMainLooper(), this);
         } else {
             Toast.makeText(this,
-                    "Severe! Channel is probably lost premanently. Try Disable/Re-Enable P2P.",
+                    "Severe! Channel is probably lost permanently. Try Disable/Re-Enable P2P.",
                     Toast.LENGTH_LONG).show();
         }
     }

@@ -1,5 +1,6 @@
 package com.example.rishi.filesharing;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -21,6 +23,7 @@ import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,6 +52,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     public static int PORT = 8080;
     private static boolean server_running = false;
 
+    public static boolean isGroupOwner = false;
     protected static final int CHOOSE_FILE_RESULT_CODE = 20;
     private View mContentView = null;
     private WifiP2pDevice device;
@@ -76,13 +80,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                 }
                 progressDialog = ProgressDialog.show(getActivity(), "Press back to cancel",
                         "Connecting to :" + device.deviceAddress, true, true
-                        //                        new DialogInterface.OnCancelListener() {
-                        //
-                        //                            @Override
-                        //                            public void onCancel(DialogInterface dialog) {
-                        //                                ((DeviceActionListener) getActivity()).cancelDisconnect();
-                        //                            }
-                        //                        }
+
                 );
                 ((DeviceListFragment.DeviceActionListener) getActivity()).connect(config);
 
@@ -117,10 +115,17 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        String localIP = Utils.getLocalIPAddress();
+        //String localIP = Utils.getLocalIPAddress();
+        WifiManager wm = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+        String localIP = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+
         // Trick to find the ip in the file /proc/net/arp
+        System.out.println("The local IP address is "+localIP);
+      //  Log.d("The local IP address is ",  localIP);
         String client_mac_fixed = new String(device.deviceAddress).replace("99", "19");
         String clientIP = Utils.getIPFromMac(client_mac_fixed);
+
+        //System.out.println("The IP address of the client is "+clientIP);
 
         // User has picked an image. Transfer it to group owner i.e peer using
         // FileTransferService.
@@ -181,6 +186,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         this.getView().setVisibility(View.VISIBLE);
         TextView view = (TextView) mContentView.findViewById(R.id.device_address);
         view.setText(device.deviceAddress);
+        System.out.println(device.deviceAddress);
         view = (TextView) mContentView.findViewById(R.id.device_info);
         view.setText(device.toString());
 
@@ -200,10 +206,9 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         this.getView().setVisibility(View.GONE);
     }
 
-    /**
-     * A simple server socket that accepts connection and writes some data on
-     * the stream.
-     */
+
+
+
     public static class ServerAsyncTask extends AsyncTask<Void, Void, String> {
 
         private final Context context;
@@ -224,7 +229,10 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                 ServerSocket serverSocket = new ServerSocket(PORT);
                 Log.d(MainActivity.TAG, "Server: Socket opened");
                 Socket client = serverSocket.accept();
+                System.out.println("The BROTHERFUCKING IP address of the client is "+client.getInetAddress());
                 Log.d(MainActivity.TAG, "Server: connection done");
+                Log.d(MainActivity.TAG, "The BROTHERFUCKING IP address of the client is "+client.getInetAddress());
+
                 final File f = new File(Environment.getExternalStorageDirectory() + "/"
                         + context.getPackageName() + "/wifip2pshared-" + System.currentTimeMillis()
                         + ".jpg");
@@ -269,6 +277,11 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         }
 
     }
+
+//    public static boolean sendIPAddress(String IP, OutputStream out)
+//    {
+//
+//    }
 
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
         byte buf[] = new byte[1024];
